@@ -1,6 +1,7 @@
 # ShizenTerrainTools
 Shizen Terrain Tools is a Unity plugin that generates Terrain, from the major geographical details, to the minute, such as grass placement. 
-There are four sections to Shizen, Height Tools, Texture Tools, Object Tools and Detail Tools. 
+
+There are four sections to Shizen: Height Tools, Texture Tools, Object Tools and Detail Tools. 
 
 Height Tools control the actual 'heights' of the terrain, from mountains to valleys. 
 
