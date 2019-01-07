@@ -22,6 +22,8 @@ namespace Shizen
 
         public Vector3 Offset;
 
+        public float Opacity;
+
         public HeightLayerProps()
         {
             Frequency = 4;
@@ -30,6 +32,7 @@ namespace Shizen
             Lacunarity = 2;
             Persistance = 0.5f;
             Offset = Vector3.zero;
+            Opacity = 1;
         }
     }
 }

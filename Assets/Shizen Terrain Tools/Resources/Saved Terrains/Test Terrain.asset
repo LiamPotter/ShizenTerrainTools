@@ -18,8 +18,34 @@ MonoBehaviour:
     Position: 0
     SavedMap: {fileID: 0}
     LayerProperties:
-      Frequency: {x: 1, y: 1}
-      Amplitude: {x: 1, y: 1}
-      Padding: {x: 0, y: 0}
+      Frequency: 4
+      Amplitude: 1
+      Octaves: 2
+      Lacunarity: 2
+      Persistance: 0.5
+      Offset: {x: 0, y: 0, z: 0}
+      Opacity: 1
+  - Name: Height Layer 1
+    Position: 1
+    SavedMap: {fileID: 0}
+    LayerProperties:
+      Frequency: 4
+      Amplitude: 1
+      Octaves: 2
+      Lacunarity: 2
+      Persistance: 0.5
+      Offset: {x: 0, y: 0, z: 0}
+      Opacity: 1
+  - Name: Height Layer 2
+    Position: 2
+    SavedMap: {fileID: 0}
+    LayerProperties:
+      Frequency: 4
+      Amplitude: 1
+      Octaves: 2
+      Lacunarity: 2
+      Persistance: 0.5
+      Offset: {x: 0, y: 0, z: 0}
+      Opacity: 1
   Textures: []
   Details: []

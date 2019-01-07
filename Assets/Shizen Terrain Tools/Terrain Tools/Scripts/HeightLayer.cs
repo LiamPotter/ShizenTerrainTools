@@ -13,12 +13,12 @@ namespace Shizen
         public int Position;
         public Texture2D SavedMap;
         public HeightLayerProps LayerProperties;
+        public bool expandedInEditor=false;
         public HeightLayer(int _position)
         {
             Name = string.Format("Height Layer {0}", _position);
             Position = _position;
             LayerProperties = new HeightLayerProps();
-
         }
     }
 }
