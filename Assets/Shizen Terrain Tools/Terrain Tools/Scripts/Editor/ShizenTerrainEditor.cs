@@ -25,12 +25,12 @@ namespace Shizen.Editors
 
         private static Color bgColor;
 
-
         private Vector2 scrollPosition;
 
         private static HeightLayer lastLayer;
 
         private static bool heightLayersOpen;
+
 
         #region Toolbar
         private static int toolbarTab = 0;
@@ -168,6 +168,7 @@ namespace Shizen.Editors
                 }
                 if (ShizenTerrain.Heights.Count < 6)
                 {
+                    GUILayout.Space(5);
                     if (GUIButton("Create a new Height Layer"))
                     {
                         ShizenTerrain.Heights.Add(new HeightLayer(ShizenTerrain.Heights.Count));
@@ -188,23 +189,29 @@ namespace Shizen.Editors
             //    if(_serializedLayer.get)
             //    _serializedLayer.Next(true);
             //}
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Layers")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("LayerToolbar")))
+            {
+                GUIContent selectedContent;
+                if (_hLayer.ExpandedInEditor)
+                    selectedContent = new GUIContent(baseSkin.FindStyle("OpenCloseSymbolsLight").hover.background);
+                else selectedContent = new GUIContent(baseSkin.FindStyle("OpenCloseSymbolsLight").normal.background);
+                if (GUILayout.Button(selectedContent, baseSkin.FindStyle("SymbolButton")))
+                    _hLayer.ExpandedInEditor = !_hLayer.ExpandedInEditor;
+                _hLayer.Name =
+                    EditorGUILayout.TextField(_hLayer.Name, baseSkin.textField);
+                _hLayer.Randomized = GUISliderBoolField(_hLayer.Randomized, "Manual", "Random");
+                GUILayout.Space(25);
+                EditorGUILayout.PrefixLabel("Preset:", baseSkin.FindStyle("Enum"),baseSkin.FindStyle("EnumLabel"));
+                _hLayer.PlaceholderPreset = (HeightLayer.placeholderPresets)EditorGUILayout.EnumPopup(_hLayer.PlaceholderPreset, baseSkin.FindStyle("Enum"));
+                GUILayout.FlexibleSpace();
+            }
+            using (new GUILayout.HorizontalScope())
             {
                 using (new GUILayout.VerticalScope())
                 {
                     //_hLayer.Name = GUITextField("Layer Name:", _hLayer.Name);
-                    using (new GUILayout.HorizontalScope())
-                    {
-                        GUIContent selectedContent;
-                        if (_hLayer.expandedInEditor)
-                            selectedContent = new GUIContent(baseSkin.FindStyle("OpenCloseSymbolsLight").hover.background);
-                        else selectedContent = new GUIContent(baseSkin.FindStyle("OpenCloseSymbolsLight").normal.background);
-                        if (GUILayout.Button(selectedContent,baseSkin.FindStyle("SymbolButton")))
-                            _hLayer.expandedInEditor = !_hLayer.expandedInEditor;
-                        _hLayer.Name =
-                            EditorGUILayout.TextField(_hLayer.Name, baseSkin.textField);
-                    }
-                    if (_hLayer.expandedInEditor)
+                  
+                    if (_hLayer.ExpandedInEditor)
                     {
                         EditorGUI.indentLevel = 1;
                         _hLayer.LayerProperties.Frequency = GUIFloatField("Frequency", _hLayer.LayerProperties.Frequency);
@@ -215,11 +222,11 @@ namespace Shizen.Editors
                         _hLayer.LayerProperties.Offset = GUIVector3Field("Offset", _hLayer.LayerProperties.Offset);
                         _hLayer.LayerProperties.Opacity = GUISliderField("Opacity",_hLayer.LayerProperties.Opacity, 0, 1);
                         EditorGUI.indentLevel = 0;
-                       
+                        GUILayout.Space(5);
                     }
                 }
                 //GUILayout.FlexibleSpace();
-                if (_hLayer.expandedInEditor)
+                if (_hLayer.ExpandedInEditor)
                 {
                     using (new GUILayout.VerticalScope())
                     {
@@ -237,8 +244,7 @@ namespace Shizen.Editors
                             //EditorGUILayout.PropertyField(_serializedLayer.FindPropertyRelative("SavedMap"));
 
                         }
-                        GUILayout.Space(10);
-                        if (GUILayout.Button("Regenerate"))
+                        if (GUILayout.Button("Regenerate",baseSkin.FindStyle("CenteredButton")))
                         {
                             GenerateHeightTexture(_hLayer);
                             Debug.Log("Regenerating " + _hLayer.Name);
@@ -404,6 +410,29 @@ namespace Shizen.Editors
                     GUILayout.FlexibleSpace();
                 }
                 GUILayout.FlexibleSpace();
+            }
+            return _fieldValue;
+        }
+        protected bool GUISliderBoolField(bool value, string offLabel, string onLabel)
+        {
+            bool _fieldValue = value;
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("ToggleSliderBase")))
+            {
+                if (!_fieldValue)
+                    EditorGUILayout.PrefixLabel(offLabel, baseSkin.FindStyle("ToggleSliderLabelsBold"), baseSkin.FindStyle("ToggleSliderLabelsBold"));
+                else
+                    EditorGUILayout.PrefixLabel(offLabel, baseSkin.FindStyle("ToggleSliderLabels"), baseSkin.FindStyle("ToggleSliderLabels"));
+                GUILayout.Space(-20);
+                if(GUILayout.Button("", baseSkin.FindStyle("ToggleSliderButton")))
+                {
+                    _fieldValue = !_fieldValue;
+                    
+                }
+                if (_fieldValue)
+                    EditorGUILayout.PrefixLabel(onLabel, baseSkin.FindStyle("ToggleSliderLabelsBold"), baseSkin.FindStyle("ToggleSliderLabelsBold"));
+                else
+                    EditorGUILayout.PrefixLabel(onLabel, baseSkin.FindStyle("ToggleSliderLabels"), baseSkin.FindStyle("ToggleSliderLabels"));
+                EditorGUILayout.LabelField("");
             }
             return _fieldValue;
         }
