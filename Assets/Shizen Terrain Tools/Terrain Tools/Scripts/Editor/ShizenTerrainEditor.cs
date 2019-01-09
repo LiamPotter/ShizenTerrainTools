@@ -220,7 +220,7 @@ namespace Shizen.Editors
                         _hLayer.LayerProperties.Lacunarity = GUIMinMaxFloatField("Lacunarity", _hLayer.LayerProperties.Lacunarity, 1, 4);
                         _hLayer.LayerProperties.Persistance = GUIMinMaxFloatField("Persistance", _hLayer.LayerProperties.Persistance, 0f, 1f);
                         _hLayer.LayerProperties.Offset = GUIVector3Field("Offset", _hLayer.LayerProperties.Offset);
-                        _hLayer.LayerProperties.Opacity = GUISliderField("Opacity",_hLayer.LayerProperties.Opacity, 0, 1);
+                        _hLayer.LayerProperties.Opacity = GUISliderField("Opacity",_hLayer.LayerProperties.Opacity, 0, 1,100,false);
                         EditorGUI.indentLevel = 0;
                         GUILayout.Space(5);
                     }
@@ -262,18 +262,37 @@ namespace Shizen.Editors
                 return;
             if (ShizenTerrain.Heights.Count == 0)
                 return;
-            EditorGUILayout.LabelField("Layer Combinations", baseSkin.FindStyle("Heading"));
+            EditorGUILayout.LabelField("Final Height Map", baseSkin.FindStyle("Heading"));
             using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Layers")))
             {
-                using (new GUILayout.VerticalScope())
+                using (new GUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
                 {
-                    for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
+                    if (GUILayout.Button("Combine Height Layers", baseSkin.FindStyle("CenteredButton")))
                     {
-                        EditorGUILayout.Separator();
+                        ShizenTerrain.FinalHeightmap = MainAlgorithms.CombineHeightLayers(ShizenTerrain.Heights);
+                    }
+                    if (ShizenTerrain.Heights != null)
+                    {
+                        for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
+                        {
+                            ShizenTerrain.Heights[i].LayerProperties.Opacity = GUISliderField(string.Format("{0} Opacity", ShizenTerrain.Heights[i].Name)
+                                , ShizenTerrain.Heights[i].LayerProperties.Opacity, 0, 1, 100,true);
+                        }
                     }
                 }
+               
+                using (new GUILayout.VerticalScope(baseSkin.FindStyle("CenteredImage"), GUILayout.Width(325)))
+                {
+                    if (ShizenTerrain.FinalHeightmap != null)
+                    {
+                        GUILayout.Space(300);
+                        EditorGUI.DrawPreviewTexture(new Rect(EditorGUILayout.GetControlRect().position + new Vector2(10, -290), new Vector2(300, 300)), ShizenTerrain.FinalHeightmap);
+
+                    }
+                }
+                //GUILayout.FlexibleSpace();
             }
-            GUILayout.Space(5);
+            
             GUILayout.FlexibleSpace();
         }
 
@@ -394,22 +413,26 @@ namespace Shizen.Editors
                 _fieldvalue = minVal;
             return _fieldvalue;
         }
-        protected float GUISliderField(string label, float value, float fromValue, float toValue)
+        protected float GUISliderField(string label, float value, float fromValue, float toValue, int sliderWidth,bool sliderOnRight)
         {
             float _fieldValue= value;
             using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
             {
-                EditorGUILayout.LabelField(label, baseSkin.label);
-                //GUILayout.Space(5);
+                GUIContent labelContent = new GUIContent(label);
+               
+                EditorGUILayout.LabelField(labelContent, baseSkin.FindStyle("SliderLabel"),GUILayout.Width(baseSkin.FindStyle("SliderLabel").CalcSize(labelContent).x));
+                if (sliderOnRight)
+                    GUILayout.FlexibleSpace();
                 using (new GUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.PrefixLabel(fromValue.ToString(), baseSkin.FindStyle("SliderValues"));
-                    _fieldValue = GUILayout.HorizontalSlider(value, fromValue, toValue, GUILayout.MinWidth(100));
-                    EditorGUILayout.PrefixLabel(toValue.ToString(), baseSkin.FindStyle("SliderValues"));
-                    //_fieldValue = EditorGUILayout.LabelField( value, baseSkin.GetStyle("floatField"));
-                    GUILayout.FlexibleSpace();
+                    GUILayout.Label(fromValue.ToString(), baseSkin.FindStyle("SliderValues"));
+                    _fieldValue = GUILayout.HorizontalSlider(value, fromValue, toValue, GUILayout.Width(sliderWidth));
+                    GUILayout.Label(toValue.ToString(), baseSkin.FindStyle("SliderValues"));
+                    //EditorGUILayout.LabelField( value.ToString(), baseSkin.GetStyle("floatField"));
+                    //GUILayout.FlexibleSpace();
                 }
-                GUILayout.FlexibleSpace();
+                if (!sliderOnRight)
+                    GUILayout.FlexibleSpace();
             }
             return _fieldValue;
         }
@@ -426,7 +449,6 @@ namespace Shizen.Editors
                 if(GUILayout.Button("", baseSkin.FindStyle("ToggleSliderButton")))
                 {
                     _fieldValue = !_fieldValue;
-                    
                 }
                 if (_fieldValue)
                     EditorGUILayout.PrefixLabel(onLabel, baseSkin.FindStyle("ToggleSliderLabelsBold"), baseSkin.FindStyle("ToggleSliderLabelsBold"));
