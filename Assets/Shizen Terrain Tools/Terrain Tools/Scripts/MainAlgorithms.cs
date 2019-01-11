@@ -32,10 +32,10 @@ namespace Shizen
             int _resolution = inputTexture.width;
             float _stepSize = 1f / _resolution;
 
-            Vector3 point00 = new Vector3(-0.5f, -0.5f)+ properties.Offset;
-            Vector3 point10 = new Vector3(0.5f, -0.5f) + properties.Offset;
-            Vector3 point01 = new Vector3(-0.5f, 0.5f) + properties.Offset;
-            Vector3 point11 = new Vector3(0.5f, 0.5f) + properties.Offset;
+            Vector3 point00 = new Vector3(-0.5f, -0.5f)+ properties.Offset.Vector3;
+            Vector3 point10 = new Vector3(0.5f, -0.5f) + properties.Offset.Vector3;
+            Vector3 point01 = new Vector3(-0.5f, 0.5f) + properties.Offset.Vector3;
+            Vector3 point11 = new Vector3(0.5f, 0.5f) + properties.Offset.Vector3;
 
             Vector3 _texturePoint =new Vector2();
             float _noiseSample;
@@ -46,7 +46,12 @@ namespace Shizen
                 for (int x = 0; x < _resolution; x++)
                 {
                     Vector3 point = Vector3.Lerp(point0, point1, (x + 0.5f) * _stepSize);
-                    _noiseSample = SimplexNoise.SampleSum(point, properties.Frequency,properties.Amplitude,properties.Octaves,properties.Lacunarity,properties.Persistance);
+                    _noiseSample = SimplexNoise.SampleSum(point, 
+                        properties.Frequency.Float,
+                        properties.Amplitude.Float,
+                        properties.Octaves.Int,
+                        properties.Lacunarity.Float,
+                        properties.Persistance.Float);
                   
                     _noiseSample = _noiseSample * 0.5f + 0.5f;
                     Color _noiseColor = Color.white * _noiseSample;
@@ -84,7 +89,6 @@ namespace Shizen
                         _useColor = CombineColorWithOpacity(_useColor, _pixelColor, heightLayers[i].LayerProperties.Opacity);
                         overallOpacity += heightLayers[i].LayerProperties.Opacity;
                     }
-                    //overallOpacity = overallOpacity / (heightLayers.Count-1);
                     _useColor = _useColor / overallOpacity;
                     _result.SetPixel(x, y, _useColor);
                 }

@@ -31,11 +31,14 @@ namespace Shizen.Editors
 
         private static bool heightLayersOpen;
 
+        private static bool finalHeightLayerOpen;
+
+        private static int baseLabelWidth = 40;
 
         #region Toolbar
         private static int toolbarTab = 0;
 
-        private static string[] toolbarNames = new string[] { "Height Tools","Object Tools", "Texture Tools", "Detail Tools" };
+        private static string[] toolbarNames = new string[] { "Height Tools", "Object Tools", "Texture Tools", "Detail Tools" };
 
         private float selectedToolbarWidth;
 
@@ -54,7 +57,7 @@ namespace Shizen.Editors
             _tempEditor.SerializedTerrain = new SerializedObject(_shizenTerrain);
             GUIContent titleContent = new GUIContent("Shizen Terrain Editor");
             _tempEditor.titleContent = titleContent;
-            _tempEditor.minSize = new Vector2(725,600);
+            _tempEditor.minSize = new Vector2(725, 600);
             bgColor = new Color(0.9f, 0.9f, 0.9f);
             _tempEditor.Show();
             _tempEditor = null;
@@ -62,23 +65,25 @@ namespace Shizen.Editors
         void OnEnable()
         {
             heightLayersOpen = EditorPrefs.GetBool("ShizenHeightLayersOpen");
+            finalHeightLayerOpen = EditorPrefs.GetBool("ShizenFinalHeightOpen");
         }
 
         void OnDisable()
         {
             EditorPrefs.SetBool("ShizenHeightLayersOpen", heightLayersOpen);
+            EditorPrefs.SetBool("ShizenFinalHeightOpen", finalHeightLayerOpen);
         }
 
         private void OnDestroy()
         {
-         
+
         }
 
         void OnGUI()
         {
             var originalLabelWidth = EditorGUIUtility.labelWidth;
             EditorGUIUtility.wideMode = true;
-            EditorGUIUtility.labelWidth = 40;
+            EditorGUIUtility.labelWidth = baseLabelWidth;
             StyleSetUp();
             EditorGUI.DrawRect(new Rect(new Vector2(selectedPosition, 0), new Vector2(selectedToolbarWidth, selectedToolbarHeight + 5)), bgColor);
             toolbarTab = GUILayout.Toolbar(toolbarTab, toolbarNames, baseSkin.FindStyle("Toolbar"));
@@ -137,58 +142,88 @@ namespace Shizen.Editors
             GUILayout.Space(5);
             EditorGUIUtility.SetIconSize(Vector2.one * 20);
             GUIContent heightContent;
-            if (heightLayersOpen)
+            GUILayout.Space(10);
+            using (new GUILayout.VerticalScope(baseSkin.FindStyle("MinimizableGroupBG")))
             {
-                heightContent = new GUIContent("Height Layers", baseSkin.FindStyle("OpenCloseSymbolsDark").hover.background);
-            }
-            else
-                heightContent = new GUIContent("Height Layers", baseSkin.FindStyle("OpenCloseSymbolsDark").normal.background);
-            if (GUILayout.Button(heightContent, baseSkin.FindStyle("Heading")))
-            {
-                heightLayersOpen = !heightLayersOpen;
-                EditorPrefs.SetBool("ShizenHeightLayersOpen", heightLayersOpen);
-            }
-            if (heightLayersOpen)
-            {
-                EditorGUIUtility.SetIconSize(Vector2.zero);
-                if (ShizenTerrain.Heights == null)
-                    ShizenTerrain.Heights = new List<HeightLayer>();
-                if (ShizenTerrain.Heights.Count == 0)
+                if (heightLayersOpen)
                 {
-                    if (GUIButton("Create your first Height Layer"))
+                    heightContent = new GUIContent("Height Layers", baseSkin.FindStyle("OpenCloseSymbolsDark").hover.background);
+                }
+                else
+                    heightContent = new GUIContent("Height Layers", baseSkin.FindStyle("OpenCloseSymbolsDark").normal.background);
+                if (GUILayout.Button(heightContent, baseSkin.FindStyle("Heading")))
+                {
+                    heightLayersOpen = !heightLayersOpen;
+                    EditorPrefs.SetBool("ShizenHeightLayersOpen", heightLayersOpen);
+                }
+                if (heightLayersOpen)
+                {
+                    EditorGUIUtility.SetIconSize(Vector2.zero);
+                    if (ShizenTerrain.Heights == null)
+                        ShizenTerrain.Heights = new List<HeightLayer>();
+                    if (ShizenTerrain.Heights.Count == 0)
                     {
-                        ShizenTerrain.Heights.Add(new HeightLayer(0));
+                        if (GUIButton("Create your first Height Layer"))
+                        {
+                            ShizenTerrain.Heights.Add(new HeightLayer(0));
+                        }
+                        return;
                     }
-                    return;
-                }
-                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, false, false, GUIStyle.none, baseSkin.verticalScrollbar, baseSkin.scrollView);
-                for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
-                {
-                    ShowHeightLayerVariables(ShizenTerrain.Heights[i]);
-                }
-                if (ShizenTerrain.Heights.Count < 6)
-                {
-                    GUILayout.Space(5);
-                    if (GUIButton("Create a new Height Layer"))
+                    scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, false, false, GUIStyle.none, baseSkin.verticalScrollbar, baseSkin.scrollView);
+                    for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
                     {
-                        ShizenTerrain.Heights.Add(new HeightLayer(ShizenTerrain.Heights.Count));
+                        ShowHeightLayerVariables(ShizenTerrain.Heights[i]);
                     }
-                }
-                EditorGUILayout.EndScrollView();
-          
-            }
+                    if (ShizenTerrain.Heights.Count < 6)
+                    {
+                        GUILayout.Space(5);
+                        if (GUIButton("Create a new Height Layer"))
+                        {
+                            ShizenTerrain.Heights.Add(new HeightLayer(ShizenTerrain.Heights.Count));
+                        }
+                    }
+                    EditorGUILayout.EndScrollView();
 
-            ShowHeightLayerCombinations();
+                }
+            }
+            using (new GUILayout.VerticalScope(baseSkin.FindStyle("MinimizableGroupBG")))
+            {
+                GUIContent finalHeightContent;
+                if (finalHeightLayerOpen)
+                {
+                    finalHeightContent = new GUIContent("Final Height Map", baseSkin.FindStyle("OpenCloseSymbolsDark").hover.background);
+                }
+                else
+                    finalHeightContent = new GUIContent("Final Height Map", baseSkin.FindStyle("OpenCloseSymbolsDark").normal.background);
+                if (GUILayout.Button(finalHeightContent, baseSkin.FindStyle("Heading")))
+                {
+                    finalHeightLayerOpen = !finalHeightLayerOpen;
+                    EditorPrefs.SetBool("ShizenFinalHeightOpen", finalHeightLayerOpen);
+                }
+                if (finalHeightLayerOpen)
+                    ShowHeightLayerCombinations();
+            }
+            if (!finalHeightLayerOpen)
+                GUILayout.FlexibleSpace();
+        }
+
+        protected void ShowObjectTools()
+        {
+            selectedPosition = (position.width / 4);
+        }
+        protected void ShowTextureTools()
+        {
+            selectedPosition = (position.width / 4) * 2;
+        }
+        protected void ShowDetailTools()
+        {
+            selectedPosition = (position.width / 4) * 3;
         }
 
         protected void ShowHeightLayerVariables(HeightLayer _hLayer)
         {
-            //SerializedProperty _serializedLayer = SerializedTerrain.FindProperty("Heights").GetArrayElementAtIndex(_hLayer.Position);
-            //for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
-            //{
-            //    if(_serializedLayer.get)
-            //    _serializedLayer.Next(true);
-            //}
+
+
             using (new GUILayout.HorizontalScope(baseSkin.FindStyle("LayerToolbar")))
             {
                 GUIContent selectedContent;
@@ -199,33 +234,38 @@ namespace Shizen.Editors
                     _hLayer.ExpandedInEditor = !_hLayer.ExpandedInEditor;
                 _hLayer.Name =
                     EditorGUILayout.TextField(_hLayer.Name, baseSkin.textField);
-                _hLayer.Randomized = GUISliderBoolField(_hLayer.Randomized, "Manual", "Random");
-                GUILayout.Space(25);
-                EditorGUILayout.PrefixLabel("Preset:", baseSkin.FindStyle("Enum"),baseSkin.FindStyle("EnumLabel"));
+                //_hLayer.Randomized = GUISliderBoolField(_hLayer.Randomized, "Manual", "Random");
+                //GUILayout.Space(25);
+                EditorGUILayout.PrefixLabel("Preset:", baseSkin.FindStyle("Enum"), baseSkin.FindStyle("EnumLabel"));
                 _hLayer.PlaceholderPreset = (HeightLayer.placeholderPresets)EditorGUILayout.EnumPopup(_hLayer.PlaceholderPreset, baseSkin.FindStyle("Enum"));
                 GUILayout.FlexibleSpace();
             }
-            using (new GUILayout.HorizontalScope())
+            GUIStyle layerStyle;
+            if (_hLayer.ExpandedInEditor)
+                layerStyle = baseSkin.FindStyle("LayerValues");
+            else layerStyle = baseSkin.FindStyle("LayerClosed");
+            using (new GUILayout.HorizontalScope(layerStyle))
             {
                 using (new GUILayout.VerticalScope())
                 {
-                    //_hLayer.Name = GUITextField("Layer Name:", _hLayer.Name);
-                  
                     if (_hLayer.ExpandedInEditor)
                     {
                         EditorGUI.indentLevel = 1;
-                        _hLayer.LayerProperties.Frequency = GUIFloatField("Frequency", _hLayer.LayerProperties.Frequency);
-                        _hLayer.LayerProperties.Amplitude = GUIMinMaxFloatField("Amplitude", _hLayer.LayerProperties.Amplitude, 0.1f, 2f);
-                        _hLayer.LayerProperties.Octaves = GUIMinMaxIntField("Octaves", _hLayer.LayerProperties.Octaves, 1, 8);
-                        _hLayer.LayerProperties.Lacunarity = GUIMinMaxFloatField("Lacunarity", _hLayer.LayerProperties.Lacunarity, 1, 4);
-                        _hLayer.LayerProperties.Persistance = GUIMinMaxFloatField("Persistance", _hLayer.LayerProperties.Persistance, 0f, 1f);
-                        _hLayer.LayerProperties.Offset = GUIVector3Field("Offset", _hLayer.LayerProperties.Offset);
-                        _hLayer.LayerProperties.Opacity = GUISliderField("Opacity",_hLayer.LayerProperties.Opacity, 0, 1,100,false);
+                        if (_hLayer.LayerProperties.Frequency.Randomized)
+                            DisplayHeightMinMaxIntFields("Frequency", -100, 100, _hLayer.LayerProperties.Frequency);
+                        else
+                            DisplayHeightPropertyFloat("Frequency", _hLayer.LayerProperties.Frequency);
+                        DisplayHeightPropertyFloatMinMax("Amplitude", 0.1f, 2f, _hLayer.LayerProperties.Amplitude);
+                        DisplayHeightPropertyIntMinMax("Octaves", 1, 8, _hLayer.LayerProperties.Octaves);
+                        DisplayHeightPropertyFloatMinMax("Lacunarity", 1, 4, _hLayer.LayerProperties.Lacunarity);
+                        DisplayHeightPropertyFloatMinMax("Persistance", 0, 1, _hLayer.LayerProperties.Persistance);
+                        DisplayHeightPropertyVector3("Offset", _hLayer.LayerProperties.Offset);                       
+                        using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+                            _hLayer.LayerProperties.Opacity = GUISliderField("Opacity", _hLayer.LayerProperties.Opacity, 0, 1, 100, false);
                         EditorGUI.indentLevel = 0;
                         GUILayout.Space(5);
                     }
                 }
-                //GUILayout.FlexibleSpace();
                 if (_hLayer.ExpandedInEditor)
                 {
                     using (new GUILayout.VerticalScope())
@@ -239,12 +279,10 @@ namespace Shizen.Editors
 
                             EditorGUILayout.LabelField("Layer Map", baseSkin.FindStyle("labelCenter"));
                             GUILayout.Space(210);
-                            //Debug.Log("The saved map of " + _hLayer.Name+"'s dimensions are: "+_hLayer.SavedMap.width+"x "+_hLayer.SavedMap.height+"y");
-                            EditorGUI.DrawPreviewTexture(new Rect(EditorGUILayout.GetControlRect().position + new Vector2(6, -200), new Vector2(200, 200)), _hLayer.SavedMap);
-                            //EditorGUILayout.PropertyField(_serializedLayer.FindPropertyRelative("SavedMap"));
-
+                            EditorGUI.DrawPreviewTexture(new Rect(EditorGUILayout.GetControlRect().position + new Vector2(6, -200)
+                                , new Vector2(200, 200)), _hLayer.SavedMap);
                         }
-                        if (GUILayout.Button("Regenerate",baseSkin.FindStyle("CenteredButton")))
+                        if (GUILayout.Button("Regenerate", baseSkin.FindStyle("CenteredButton")))
                         {
                             GenerateHeightTexture(_hLayer);
                             Debug.Log("Regenerating " + _hLayer.Name);
@@ -262,8 +300,7 @@ namespace Shizen.Editors
                 return;
             if (ShizenTerrain.Heights.Count == 0)
                 return;
-            EditorGUILayout.LabelField("Final Height Map", baseSkin.FindStyle("Heading"));
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Layers")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FinalHeightMap")))
             {
                 using (new GUILayout.VerticalScope(GUILayout.ExpandWidth(true)))
                 {
@@ -276,39 +313,23 @@ namespace Shizen.Editors
                         for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
                         {
                             ShizenTerrain.Heights[i].LayerProperties.Opacity = GUISliderField(string.Format("{0} Opacity", ShizenTerrain.Heights[i].Name)
-                                , ShizenTerrain.Heights[i].LayerProperties.Opacity, 0, 1, 100,true);
+                                , ShizenTerrain.Heights[i].LayerProperties.Opacity, 0, 1, 100, true);
                         }
                     }
                 }
-               
                 using (new GUILayout.VerticalScope(baseSkin.FindStyle("CenteredImage"), GUILayout.Width(325)))
                 {
                     if (ShizenTerrain.FinalHeightmap != null)
                     {
                         GUILayout.Space(300);
                         EditorGUI.DrawPreviewTexture(new Rect(EditorGUILayout.GetControlRect().position + new Vector2(10, -290), new Vector2(300, 300)), ShizenTerrain.FinalHeightmap);
-
                     }
                 }
-                //GUILayout.FlexibleSpace();
             }
-            
-            GUILayout.FlexibleSpace();
+            if (!heightLayersOpen)
+                GUILayout.FlexibleSpace();
         }
 
-        protected void ShowObjectTools()
-        {
-            selectedPosition = (position.width / 4);
-        }
-
-        protected void ShowTextureTools()
-        {
-            selectedPosition = (position.width / 4) * 2;
-        }
-        protected void ShowDetailTools()
-        {
-            selectedPosition = (position.width / 4) * 3;
-        }
 
         private void GenerateHeightTexture(HeightLayer hLayer)
         {
@@ -322,6 +343,72 @@ namespace Shizen.Editors
             lastLayer.SavedMap = MainAlgorithms.GeneratedSimplexTexture(Terrain, lastLayer.LayerProperties);
         }
 
+       
+
+        private void DisplayHeightPropertyFloat(string label, HeightLayerProperty heightLayerProperty)
+        {
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                heightLayerProperty.SetFloat(GUIFloatField(label, heightLayerProperty.Float));
+                GUILayout.FlexibleSpace();
+            }
+        }
+
+        private void DisplayHeightPropertyFloatMinMax(string label, float min, float max, HeightLayerProperty heightLayerProperty)
+        {
+
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                heightLayerProperty.SetFloat(GUIMinMaxFloatField(label, heightLayerProperty.Float, min, max));
+                GUILayout.FlexibleSpace();
+            }
+        }
+
+        private void DisplayHeightPropertyIntMinMax(string label, int minValue, int maxValue, HeightLayerProperty heightLayerProperty)
+        {
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                heightLayerProperty.SetInt(GUIMinMaxIntField(label, heightLayerProperty.Int, minValue, maxValue));
+                GUILayout.FlexibleSpace();
+            }
+        }
+
+        private void DisplayHeightPropertyVector3(string label, HeightLayerProperty heightLayerProperty)
+        {
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                heightLayerProperty.SetVector3(GUIVector3Field(label,heightLayerProperty.Vector3));
+                GUILayout.FlexibleSpace();
+            }
+        }
+        private void DisplayHeightPropertyRandomButton(HeightLayerProperty heightLayerProperty)
+        {
+            heightLayerProperty.SetRandomized(GUIToggleButton(
+                  new GUIContent(baseSkin.FindStyle("RandomManualIcons").hover.background),
+                  new GUIContent(baseSkin.FindStyle("RandomManualIcons").normal.background),
+                  "This property is set to manual.",
+                  "This property is set to random.",
+                  heightLayerProperty.Randomized));
+        }
+        protected void DisplayHeightMinMaxIntFields(string label, int min, int max, HeightLayerProperty heightLayerProperty)
+        {
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
+                {
+                    EditorGUILayout.LabelField(label, baseSkin.label);
+                    heightLayerProperty.IntMin = GUIMinMaxIntFieldPrefix("Min", heightLayerProperty.IntMin, min, heightLayerProperty.IntMax);
+                    heightLayerProperty.IntMax = GUIMinMaxIntFieldPrefix("Max", heightLayerProperty.IntMax, heightLayerProperty.IntMin, max);
+                    GUILayout.FlexibleSpace();
+                }
+            
+            }
+        }
         protected int BoolToInt(bool _value)
         {
             if (_value)
@@ -330,16 +417,12 @@ namespace Shizen.Editors
                 return 0;
         }
 
+        #region UI Layout Methods
         protected string GUITextField(string label, string text)
         {
-            //var _textWidth = baseSkin.label.CalcSize(new GUIContent(_label));
-            //Debug.Log("Text width for " + _label + " is " + _textWidth);
             var _value = "";
-            //using (new EditorGUILayout.P())
             GUIContent _useLabel = new GUIContent(label);
-
             _value = EditorGUILayout.TextField(_useLabel, text, baseSkin.textField);
-
             return _value;
         }
 
@@ -347,38 +430,51 @@ namespace Shizen.Editors
         {
             return GUILayout.Button(label, baseSkin.button);
         }
+        public bool GUIToggleButton(GUIContent labelOff,GUIContent labelOn,string toolTipOff,string toolTipOn, bool value)
+        {
+            bool _fieldValue = value;
+            labelOff.tooltip = toolTipOff;
+            labelOn.tooltip = toolTipOn;
+            GUIContent selectedLabel;
+            if (_fieldValue)
+                selectedLabel = labelOn;
+            else selectedLabel = labelOff;
+            
+            if(GUILayout.Button(selectedLabel, baseSkin.FindStyle("ToggleButton")))
+            {
+                _fieldValue = !_fieldValue;
+            }
 
+            return _fieldValue;
+        }
         protected void GUIVector2Field(string label, ref Vector2 value)
         {
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
                 EditorGUILayout.LabelField(label, baseSkin.label);
                 value.x = EditorGUILayout.FloatField("x", value.x, baseSkin.GetStyle("floatField"));
                 value.y = EditorGUILayout.FloatField("y", value.y, baseSkin.GetStyle("floatField"));
-                GUILayout.FlexibleSpace();
             }
         }
         protected Vector3 GUIVector3Field(string label, Vector3 value)
         {
             Vector3 _fieldvalue = value;
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
                 EditorGUILayout.LabelField(label, baseSkin.label);
                 _fieldvalue.x = EditorGUILayout.FloatField("x", value.x, baseSkin.GetStyle("floatField"));
                 _fieldvalue.y = EditorGUILayout.FloatField("y", value.y, baseSkin.GetStyle("floatField"));
-                _fieldvalue.y = EditorGUILayout.FloatField("z", value.z, baseSkin.GetStyle("floatField"));
-                GUILayout.FlexibleSpace();
+                _fieldvalue.z = EditorGUILayout.FloatField("z", value.z, baseSkin.GetStyle("floatField"));
             }
             return _fieldvalue;
         }
         protected float GUIFloatField(string label, float value)
         {
             float _fieldvalue = 0;
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
                 EditorGUILayout.LabelField(label, baseSkin.label);
-                _fieldvalue = EditorGUILayout.FloatField(" ", value, baseSkin.GetStyle("floatField"));
-                GUILayout.FlexibleSpace();
+                _fieldvalue = EditorGUILayout.FloatField(value, baseSkin.GetStyle("floatField"));
             }
             return _fieldvalue;
         }
@@ -386,11 +482,11 @@ namespace Shizen.Editors
         protected float GUIMinMaxFloatField(string label, float value, float minVal, float maxVal)
         {
             float _fieldvalue = minVal;
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
                 EditorGUILayout.LabelField(label, baseSkin.label);
-                _fieldvalue = EditorGUILayout.FloatField(" ", value, baseSkin.GetStyle("floatField"));
-                GUILayout.FlexibleSpace();
+                _fieldvalue = EditorGUILayout.FloatField(value, baseSkin.GetStyle("floatField"));
+               
             }
             if (_fieldvalue > maxVal)
                 _fieldvalue = maxVal;
@@ -401,12 +497,27 @@ namespace Shizen.Editors
         protected int GUIMinMaxIntField(string label, int value, int minVal, int maxVal)
         {
             int _fieldvalue = value;
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
                 EditorGUILayout.LabelField(label, baseSkin.label);
-                _fieldvalue = EditorGUILayout.IntField(" ", value, baseSkin.GetStyle("floatField"));
-                GUILayout.FlexibleSpace();
+                _fieldvalue = EditorGUILayout.IntField(value, baseSkin.GetStyle("floatField"));
             }
+            if (_fieldvalue > maxVal)
+                _fieldvalue = maxVal;
+            if (_fieldvalue < minVal)
+                _fieldvalue = minVal;
+            return _fieldvalue;
+        }
+        protected int GUIMinMaxIntFieldPrefix(string label, int value, int minVal, int maxVal)
+        {
+            int _fieldvalue = value;
+            EditorGUIUtility.labelWidth = 50;
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
+            {
+                //EditorGUILayout.PrefixLabel(label, baseSkin.GetStyle("floatField"), baseSkin.label);
+                _fieldvalue = EditorGUILayout.IntField(label,value, baseSkin.GetStyle("floatField"));
+            }
+            EditorGUIUtility.labelWidth = baseLabelWidth;
             if (_fieldvalue > maxVal)
                 _fieldvalue = maxVal;
             if (_fieldvalue < minVal)
@@ -416,7 +527,7 @@ namespace Shizen.Editors
         protected float GUISliderField(string label, float value, float fromValue, float toValue, int sliderWidth,bool sliderOnRight)
         {
             float _fieldValue= value;
-            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("Vector2Field")))
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
                 GUIContent labelContent = new GUIContent(label);
                
@@ -458,6 +569,7 @@ namespace Shizen.Editors
             }
             return _fieldValue;
         }
+        #endregion
     }
     
 }
