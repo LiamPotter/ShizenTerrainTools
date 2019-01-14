@@ -13,8 +13,8 @@ public class HeightLayerProperty
     private float _floatMax;
 
     public float Float { get { return _float; } }
-    public float RandomFloatMin { get { return _floatMin; } set { _floatMin = value; } }
-    public float RandomFloatMax { get { return _floatMax; } set { _floatMax = value; } }
+    public float FloatMin { get { return _floatMin; } set { _floatMin = value; } }
+    public float FloatMax { get { return _floatMax; } set { _floatMax = value; } }
 
     private int _int;
     private int _intMin;

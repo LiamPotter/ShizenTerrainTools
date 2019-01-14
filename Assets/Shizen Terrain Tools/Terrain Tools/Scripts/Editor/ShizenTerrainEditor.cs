@@ -222,8 +222,6 @@ namespace Shizen.Editors
 
         protected void ShowHeightLayerVariables(HeightLayer _hLayer)
         {
-
-
             using (new GUILayout.HorizontalScope(baseSkin.FindStyle("LayerToolbar")))
             {
                 GUIContent selectedContent;
@@ -252,14 +250,29 @@ namespace Shizen.Editors
                     {
                         EditorGUI.indentLevel = 1;
                         if (_hLayer.LayerProperties.Frequency.Randomized)
-                            DisplayHeightMinMaxIntFields("Frequency", -100, 100, _hLayer.LayerProperties.Frequency);
+                            DisplayHeightMinMaxFloatFields("Frequency", 0.1f, 100, _hLayer.LayerProperties.Frequency);
                         else
                             DisplayHeightPropertyFloat("Frequency", _hLayer.LayerProperties.Frequency);
-                        DisplayHeightPropertyFloatMinMax("Amplitude", 0.1f, 2f, _hLayer.LayerProperties.Amplitude);
-                        DisplayHeightPropertyIntMinMax("Octaves", 1, 8, _hLayer.LayerProperties.Octaves);
-                        DisplayHeightPropertyFloatMinMax("Lacunarity", 1, 4, _hLayer.LayerProperties.Lacunarity);
-                        DisplayHeightPropertyFloatMinMax("Persistance", 0, 1, _hLayer.LayerProperties.Persistance);
-                        DisplayHeightPropertyVector3("Offset", _hLayer.LayerProperties.Offset);                       
+                        if(_hLayer.LayerProperties.Amplitude.Randomized)
+                            DisplayHeightMinMaxFloatFields("Amplitude", 0.1f, 2f, _hLayer.LayerProperties.Amplitude);
+                        else
+                            DisplayHeightPropertyFloatMinMax("Amplitude", 0.1f, 2f, _hLayer.LayerProperties.Amplitude);
+                        if (_hLayer.LayerProperties.Octaves.Randomized)
+                            DisplayHeightMinMaxIntFields("Octaves", 1, 8, _hLayer.LayerProperties.Octaves);
+                        else
+                            DisplayHeightPropertyIntMinMax("Octaves", 1, 8, _hLayer.LayerProperties.Octaves);
+                        if(_hLayer.LayerProperties.Lacunarity.Randomized)
+                            DisplayHeightMinMaxFloatFields("Lacunarity", 1f, 4f, _hLayer.LayerProperties.Lacunarity);
+                        else
+                            DisplayHeightPropertyFloatMinMax("Lacunarity", 1, 4, _hLayer.LayerProperties.Lacunarity);
+                        if(_hLayer.LayerProperties.Persistance.Randomized)
+                            DisplayHeightMinMaxFloatFields("Persistance", 0, 1f, _hLayer.LayerProperties.Persistance);
+                        else
+                            DisplayHeightPropertyFloatMinMax("Persistance", 0, 1, _hLayer.LayerProperties.Persistance);
+                        if(_hLayer.LayerProperties.Offset.Randomized)
+                            DisplayHeightMinMaxFloatFields("Offset", -100f, 100f, _hLayer.LayerProperties.Offset);
+                        else
+                            DisplayHeightPropertyVector3("Offset", _hLayer.LayerProperties.Offset);                       
                         using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
                             _hLayer.LayerProperties.Opacity = GUISliderField("Opacity", _hLayer.LayerProperties.Opacity, 0, 1, 100, false);
                         EditorGUI.indentLevel = 0;
@@ -402,11 +415,29 @@ namespace Shizen.Editors
                 using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
                 {
                     EditorGUILayout.LabelField(label, baseSkin.label);
-                    heightLayerProperty.IntMin = GUIMinMaxIntFieldPrefix("Min", heightLayerProperty.IntMin, min, heightLayerProperty.IntMax);
-                    heightLayerProperty.IntMax = GUIMinMaxIntFieldPrefix("Max", heightLayerProperty.IntMax, heightLayerProperty.IntMin, max);
-                    GUILayout.FlexibleSpace();
+                    heightLayerProperty.IntMin = GUIMinMaxIntFieldPrefix("Min", heightLayerProperty.IntMin, 
+                        min, heightLayerProperty.IntMax);
+                    heightLayerProperty.IntMax = GUIMinMaxIntFieldPrefix("Max", heightLayerProperty.IntMax, 
+                        heightLayerProperty.IntMin, max);
+                    //GUILayout.FlexibleSpace();
                 }
             
+            }
+        }
+        protected void DisplayHeightMinMaxFloatFields(string label, float min, float max, HeightLayerProperty heightLayerProperty)
+        {
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
+                {
+                    EditorGUILayout.LabelField(label, baseSkin.label);
+                    heightLayerProperty.FloatMin = GUIMinMaxFloatFieldPrefix("Min", heightLayerProperty.FloatMin,
+                      min, heightLayerProperty.FloatMax);
+                    heightLayerProperty.FloatMax = GUIMinMaxFloatFieldPrefix("Max", heightLayerProperty.FloatMax, 
+                        heightLayerProperty.FloatMin, max);
+                    //GUILayout.FlexibleSpace();
+                }
             }
         }
         protected int BoolToInt(bool _value)
@@ -494,6 +525,22 @@ namespace Shizen.Editors
                 _fieldvalue = minVal;
             return _fieldvalue;
         }
+        protected float GUIMinMaxFloatFieldPrefix(string label, float value, float minVal, float maxVal)
+        {
+            float _fieldvalue = minVal;
+            EditorGUIUtility.labelWidth = 55;
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
+            {
+                _fieldvalue = EditorGUILayout.FloatField(label,value, baseSkin.GetStyle("floatField"));
+
+            }
+            EditorGUIUtility.labelWidth = baseLabelWidth;
+            if (_fieldvalue > maxVal)
+                _fieldvalue = maxVal;
+            if (_fieldvalue < minVal)
+                _fieldvalue = minVal;
+            return _fieldvalue;
+        }
         protected int GUIMinMaxIntField(string label, int value, int minVal, int maxVal)
         {
             int _fieldvalue = value;
@@ -511,10 +558,9 @@ namespace Shizen.Editors
         protected int GUIMinMaxIntFieldPrefix(string label, int value, int minVal, int maxVal)
         {
             int _fieldvalue = value;
-            EditorGUIUtility.labelWidth = 50;
+            EditorGUIUtility.labelWidth = 55;
             using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
             {
-                //EditorGUILayout.PrefixLabel(label, baseSkin.GetStyle("floatField"), baseSkin.label);
                 _fieldvalue = EditorGUILayout.IntField(label,value, baseSkin.GetStyle("floatField"));
             }
             EditorGUIUtility.labelWidth = baseLabelWidth;
