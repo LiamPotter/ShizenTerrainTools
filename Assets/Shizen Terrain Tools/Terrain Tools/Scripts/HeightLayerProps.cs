@@ -10,26 +10,29 @@ namespace Shizen
     [System.Serializable]
     public class HeightLayerProps
     {
-        public float Frequency;
+        public HeightLayerProperty Frequency;
 
-        public float Amplitude;
+        public HeightLayerProperty Amplitude;
 
-        public int Octaves;
+        public HeightLayerProperty Octaves;
 
-        public float Lacunarity;
+        public HeightLayerProperty Lacunarity;
 
-        public float Persistance;
+        public HeightLayerProperty Persistance;
 
-        public Vector3 Offset;
+        public HeightLayerProperty Offset;
+
+        public float Opacity;
 
         public HeightLayerProps()
         {
-            Frequency = 4;
-            Amplitude = 1;
-            Octaves = 2;
-            Lacunarity = 2;
-            Persistance = 0.5f;
-            Offset = Vector3.zero;
+            Frequency = new HeightLayerProperty(4f);
+            Amplitude = new HeightLayerProperty(1f);
+            Octaves = new HeightLayerProperty((int)2);
+            Lacunarity = new HeightLayerProperty(2f);
+            Persistance = new HeightLayerProperty(0.5f);
+            Offset = new HeightLayerProperty(Vector3.zero);
+            Opacity = 1f;
         }
     }
 }

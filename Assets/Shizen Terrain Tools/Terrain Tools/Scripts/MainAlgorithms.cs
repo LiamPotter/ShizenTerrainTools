@@ -11,7 +11,7 @@ namespace Shizen
     {
 
 
-        public static Texture2D GeneratedSimplexTexture(Terrain _terrain, HeightLayerProps _properties)
+        public static Texture2D GeneratedSimplexTexture(Terrain terrain, HeightLayerProps properties)
         {
             Texture2D _working;
             int _resolution;
@@ -19,23 +19,23 @@ namespace Shizen
             //_sizeX = _terrain.terrainData.heightmapWidth;
             //_sizeY = _terrain.terrainData.heightmapHeight;
             _resolution = 256;
-            _working = new Texture2D(_resolution, _resolution, TextureFormat.RGB24, true);
+            _working = new Texture2D(_resolution, _resolution, TextureFormat.RGBA32, true);
             _working.name = "Heightmap Noise Texture";
             _working.wrapMode = TextureWrapMode.Clamp;
-            FillTextureWithNoise(_working,_properties);
+            FillTextureWithNoise(_working,properties);
 
             return _working;
         }
 
-        private static void FillTextureWithNoise(Texture2D _inputTexture,HeightLayerProps _properties)
+        private static void FillTextureWithNoise(Texture2D inputTexture,HeightLayerProps properties)
         {
-            int _resolution = _inputTexture.width;
+            int _resolution = inputTexture.width;
             float _stepSize = 1f / _resolution;
 
-            Vector3 point00 = new Vector3(-0.5f, -0.5f)+ _properties.Offset;
-            Vector3 point10 = new Vector3(0.5f, -0.5f) + _properties.Offset;
-            Vector3 point01 = new Vector3(-0.5f, 0.5f) + _properties.Offset;
-            Vector3 point11 = new Vector3(0.5f, 0.5f) + _properties.Offset;
+            Vector3 point00 = new Vector3(-0.5f, -0.5f)+ properties.Offset.Vector3;
+            Vector3 point10 = new Vector3(0.5f, -0.5f) + properties.Offset.Vector3;
+            Vector3 point01 = new Vector3(-0.5f, 0.5f) + properties.Offset.Vector3;
+            Vector3 point11 = new Vector3(0.5f, 0.5f) + properties.Offset.Vector3;
 
             Vector3 _texturePoint =new Vector2();
             float _noiseSample;
@@ -46,15 +46,56 @@ namespace Shizen
                 for (int x = 0; x < _resolution; x++)
                 {
                     Vector3 point = Vector3.Lerp(point0, point1, (x + 0.5f) * _stepSize);
-                    _noiseSample = SimplexNoise.SampleSum(point, _properties.Frequency,_properties.Amplitude,_properties.Octaves,_properties.Lacunarity,_properties.Persistance);
+                    _noiseSample = SimplexNoise.SampleSum(point, 
+                        properties.Frequency.Float,
+                        properties.Amplitude.Float,
+                        properties.Octaves.Int,
+                        properties.Lacunarity.Float,
+                        properties.Persistance.Float);
                   
                     _noiseSample = _noiseSample * 0.5f + 0.5f;
-                    _inputTexture.SetPixel(x, y, Color.white*_noiseSample);
+                    Color _noiseColor = Color.white * _noiseSample;
+                    inputTexture.SetPixel(x, y, _noiseColor);
                 }
             }
-            _inputTexture.Apply();
+            inputTexture.Apply();
         }
 
+        public static Texture2D CombineHeightLayers(List<HeightLayer> heightLayers)
+        {
+            Texture2D _result;
+            int _resolution =256;
+
+            _result = new Texture2D(_resolution, _resolution, TextureFormat.RGB24, true);
+            _result.name = "Heightmap Combination Texture";
+            _result.wrapMode = TextureWrapMode.Clamp;
+        
+            for (int i = 0; i < heightLayers.Count; i++)
+            {
+                if (heightLayers[i].SavedMap == null)
+                {
+                    Debug.LogError(heightLayers[i].Name + " doesn't have a saved map!");
+                }
+            }
+            for (int x = 0; x < _resolution; x++)
+            {
+                for (int y = 0; y < _resolution; y++)
+                {
+                    Color _useColor=Color.black;
+                    float overallOpacity=0f;
+                    for (int i = 0; i < heightLayers.Count; i++)
+                    {
+                        Color _pixelColor = heightLayers[i].SavedMap.GetPixel(x, y);
+                        _useColor = CombineColorWithOpacity(_useColor, _pixelColor, heightLayers[i].LayerProperties.Opacity);
+                        overallOpacity += heightLayers[i].LayerProperties.Opacity;
+                    }
+                    _useColor = _useColor / overallOpacity;
+                    _result.SetPixel(x, y, _useColor);
+                }
+            }
+            _result.Apply();
+            return _result;
+        }
 
         private static int FloorFast(double x)
         {
@@ -66,7 +107,14 @@ namespace Shizen
             return g[0] * x + g[1] * y;
         }
 
-
+        private static Color CombineColorWithOpacity(Color baseColor,Color combineColor, float opacity)
+        {
+            Color _resultColor = baseColor;
+            _resultColor.r += combineColor.r * opacity;
+            _resultColor.g += combineColor.g * opacity;
+            _resultColor.b += combineColor.b * opacity;
+            return _resultColor;
+        }
     }
 }
 public class PerlinPoint

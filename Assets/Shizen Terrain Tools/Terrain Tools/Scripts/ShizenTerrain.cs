@@ -10,5 +10,7 @@ namespace Shizen
         public List<HeightLayer> Heights;
         public List<ShizenScript> Textures;
         public List<ShizenScript> Details;
+
+        public Texture2D FinalHeightmap;
     }
 }

@@ -11,12 +11,12 @@ namespace Shizen.Editors
     [CustomEditor(typeof(ShizenTerrainComponent))]
     public class ShizenTerrainCompEditor : Editor
     {
-        private ShizenTerrainComponent sComponent;
+        private ShizenTerrainComponent shizenTerrainComponent;
         private static GUIStyle style;
         public override void OnInspectorGUI()
         {
-            if (!sComponent)
-                sComponent = (ShizenTerrainComponent)target;
+            if (!shizenTerrainComponent)
+                shizenTerrainComponent = (ShizenTerrainComponent)target;
             if (style==null)
             {
                 style = new GUIStyle();
@@ -25,11 +25,11 @@ namespace Shizen.Editors
                 style.padding = new RectOffset(8, 8, 8, 0);
             }
             GUILayout.Label("Shizen Terrain", style);
-            sComponent.ShizenTerrain = (ShizenTerrain)EditorGUILayout.ObjectField(sComponent.ShizenTerrain, typeof(ShizenTerrain),false);
-            if (GUILayout.Button(sComponent.OpenButtonLabel))
+            shizenTerrainComponent.ShizenTerrain = (ShizenTerrain)EditorGUILayout.ObjectField(shizenTerrainComponent.ShizenTerrain, typeof(ShizenTerrain),false);
+            if (GUILayout.Button(shizenTerrainComponent.OpenButtonLabel))
             {
-                if (sComponent.Open())
-                    ShizenTerrainEditor.Initialize(sComponent.Terrain, sComponent.ShizenTerrain);
+                if (shizenTerrainComponent.Open())
+                    ShizenTerrainEditor.Initialize(shizenTerrainComponent.Terrain, shizenTerrainComponent.ShizenTerrain);
             }
         }
     }
