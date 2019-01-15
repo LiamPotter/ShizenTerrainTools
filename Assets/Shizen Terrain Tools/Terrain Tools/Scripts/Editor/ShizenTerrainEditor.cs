@@ -253,26 +253,32 @@ namespace Shizen.Editors
                             DisplayHeightMinMaxFloatFields("Frequency", 0.1f, 100, _hLayer.LayerProperties.Frequency);
                         else
                             DisplayHeightPropertyFloat("Frequency", _hLayer.LayerProperties.Frequency);
+
                         if(_hLayer.LayerProperties.Amplitude.Randomized)
                             DisplayHeightMinMaxFloatFields("Amplitude", 0.1f, 2f, _hLayer.LayerProperties.Amplitude);
                         else
                             DisplayHeightPropertyFloatMinMax("Amplitude", 0.1f, 2f, _hLayer.LayerProperties.Amplitude);
+
                         if (_hLayer.LayerProperties.Octaves.Randomized)
                             DisplayHeightMinMaxIntFields("Octaves", 1, 8, _hLayer.LayerProperties.Octaves);
                         else
                             DisplayHeightPropertyIntMinMax("Octaves", 1, 8, _hLayer.LayerProperties.Octaves);
+
                         if(_hLayer.LayerProperties.Lacunarity.Randomized)
                             DisplayHeightMinMaxFloatFields("Lacunarity", 1f, 4f, _hLayer.LayerProperties.Lacunarity);
                         else
                             DisplayHeightPropertyFloatMinMax("Lacunarity", 1, 4, _hLayer.LayerProperties.Lacunarity);
+
                         if(_hLayer.LayerProperties.Persistance.Randomized)
                             DisplayHeightMinMaxFloatFields("Persistance", 0, 1f, _hLayer.LayerProperties.Persistance);
                         else
                             DisplayHeightPropertyFloatMinMax("Persistance", 0, 1, _hLayer.LayerProperties.Persistance);
+
                         if(_hLayer.LayerProperties.Offset.Randomized)
-                            DisplayHeightMinMaxFloatFields("Offset", -100f, 100f, _hLayer.LayerProperties.Offset);
+                            DisplayHeightMinMaxVectorFields("Offset", -100f, 100f, _hLayer.LayerProperties.Offset);
                         else
-                            DisplayHeightPropertyVector3("Offset", _hLayer.LayerProperties.Offset);                       
+                            DisplayHeightPropertyVector3("Offset", _hLayer.LayerProperties.Offset);    
+                        
                         using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
                             _hLayer.LayerProperties.Opacity = GUISliderField("Opacity", _hLayer.LayerProperties.Opacity, 0, 1, 100, false);
                         EditorGUI.indentLevel = 0;
@@ -415,10 +421,15 @@ namespace Shizen.Editors
                 using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
                 {
                     EditorGUILayout.LabelField(label, baseSkin.label);
-                    heightLayerProperty.IntMin = GUIMinMaxIntFieldPrefix("Min", heightLayerProperty.IntMin, 
-                        min, heightLayerProperty.IntMax);
-                    heightLayerProperty.IntMax = GUIMinMaxIntFieldPrefix("Max", heightLayerProperty.IntMax, 
-                        heightLayerProperty.IntMin, max);
+                    heightLayerProperty.SetMinMaxInts(
+                        GUIMinMaxIntFieldPrefix("Min", heightLayerProperty.IntMin,
+                            min, heightLayerProperty.IntMax),
+                        GUIMinMaxIntFieldPrefix("Max", heightLayerProperty.IntMax,
+                            heightLayerProperty.IntMin, max));
+                    //heightLayerProperty.IntMin = GUIMinMaxIntFieldPrefix("Min", heightLayerProperty.IntMin, 
+                    //    min, heightLayerProperty.IntMax);
+                    //heightLayerProperty.IntMax = GUIMinMaxIntFieldPrefix("Max", heightLayerProperty.IntMax, 
+                    //    heightLayerProperty.IntMin, max);
                     //GUILayout.FlexibleSpace();
                 }
             
@@ -432,10 +443,36 @@ namespace Shizen.Editors
                 using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
                 {
                     EditorGUILayout.LabelField(label, baseSkin.label);
-                    heightLayerProperty.FloatMin = GUIMinMaxFloatFieldPrefix("Min", heightLayerProperty.FloatMin,
-                      min, heightLayerProperty.FloatMax);
-                    heightLayerProperty.FloatMax = GUIMinMaxFloatFieldPrefix("Max", heightLayerProperty.FloatMax, 
-                        heightLayerProperty.FloatMin, max);
+                    heightLayerProperty.SetMinMaxFloats(
+                        GUIMinMaxFloatFieldPrefix("Min", heightLayerProperty.FloatMin,
+                            min, heightLayerProperty.FloatMax),
+                         GUIMinMaxFloatFieldPrefix("Max", heightLayerProperty.FloatMax,
+                            heightLayerProperty.FloatMin, max));
+                    //heightLayerProperty.FloatMin = GUIMinMaxFloatFieldPrefix("Min", heightLayerProperty.FloatMin,
+                    //  min, heightLayerProperty.FloatMax);
+                    //heightLayerProperty.FloatMax = GUIMinMaxFloatFieldPrefix("Max", heightLayerProperty.FloatMax, 
+                    //    heightLayerProperty.FloatMin, max);
+                    //GUILayout.FlexibleSpace();
+                }
+            }
+        }
+        protected void DisplayHeightMinMaxVectorFields(string label, float min, float max, HeightLayerProperty heightLayerProperty)
+        {
+            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+            {
+                DisplayHeightPropertyRandomButton(heightLayerProperty);
+                using (new GUILayout.HorizontalScope(baseSkin.FindStyle("FieldValue")))
+                {
+                    EditorGUILayout.LabelField(label, baseSkin.label);
+                    heightLayerProperty.SetMinMaxVector3s(
+                        GUIMinMaxFloatFieldPrefix("Min", heightLayerProperty.FloatMin,
+                            min, heightLayerProperty.FloatMax),
+                         GUIMinMaxFloatFieldPrefix("Max", heightLayerProperty.FloatMax,
+                            heightLayerProperty.FloatMin, max));
+                    //heightLayerProperty.FloatMin = GUIMinMaxFloatFieldPrefix("Min", heightLayerProperty.FloatMin,
+                    //  min, heightLayerProperty.FloatMax);
+                    //heightLayerProperty.FloatMax = GUIMinMaxFloatFieldPrefix("Max", heightLayerProperty.FloatMax, 
+                    //    heightLayerProperty.FloatMin, max);
                     //GUILayout.FlexibleSpace();
                 }
             }

@@ -75,6 +75,7 @@ namespace Shizen
                 if (heightLayers[i].SavedMap == null)
                 {
                     Debug.LogError(heightLayers[i].Name + " doesn't have a saved map!");
+                    return null;
                 }
             }
             for (int x = 0; x < _resolution; x++)
