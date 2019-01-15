@@ -143,6 +143,7 @@ namespace Shizen.Editors
             EditorGUIUtility.SetIconSize(Vector2.one * 20);
             GUIContent heightContent;
             GUILayout.Space(10);
+            int amountofHeightLayersOpen = 0;
             using (new GUILayout.VerticalScope(baseSkin.FindStyle("MinimizableGroupBG")))
             {
                 if (heightLayersOpen)
@@ -170,9 +171,12 @@ namespace Shizen.Editors
                         return;
                     }
                     scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, false, false, GUIStyle.none, baseSkin.verticalScrollbar, baseSkin.scrollView);
+                 
                     for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
                     {
                         ShowHeightLayerVariables(ShizenTerrain.Heights[i]);
+                        if (ShizenTerrain.Heights[i].ExpandedInEditor)
+                            amountofHeightLayersOpen++;
                     }
                     if (ShizenTerrain.Heights.Count < 6)
                     {
@@ -183,7 +187,7 @@ namespace Shizen.Editors
                         }
                     }
                     EditorGUILayout.EndScrollView();
-
+                    
                 }
             }
             using (new GUILayout.VerticalScope(baseSkin.FindStyle("MinimizableGroupBG")))
@@ -203,7 +207,7 @@ namespace Shizen.Editors
                 if (finalHeightLayerOpen)
                     ShowHeightLayerCombinations();
             }
-            if (!finalHeightLayerOpen)
+            if (heightLayersOpen&&amountofHeightLayersOpen == 0)
                 GUILayout.FlexibleSpace();
         }
 
@@ -331,8 +335,9 @@ namespace Shizen.Editors
                     {
                         for (int i = 0; i < ShizenTerrain.Heights.Count; i++)
                         {
-                            ShizenTerrain.Heights[i].LayerProperties.Opacity = GUISliderField(string.Format("{0} Opacity", ShizenTerrain.Heights[i].Name)
-                                , ShizenTerrain.Heights[i].LayerProperties.Opacity, 0, 1, 100, true);
+                            using (new GUILayout.HorizontalScope(baseSkin.FindStyle("HeightLayerProperty")))
+                                ShizenTerrain.Heights[i].LayerProperties.Opacity = GUISliderField(string.Format("{0} Opacity", ShizenTerrain.Heights[i].Name)
+                                    , ShizenTerrain.Heights[i].LayerProperties.Opacity, 0, 1, 100, true);
                         }
                     }
                 }
@@ -345,8 +350,8 @@ namespace Shizen.Editors
                     }
                 }
             }
-            if (!heightLayersOpen)
-                GUILayout.FlexibleSpace();
+            //if (!heightLayersOpen)
+            //    GUILayout.FlexibleSpace();
         }
 
 
@@ -625,8 +630,10 @@ namespace Shizen.Editors
                     //EditorGUILayout.LabelField( value.ToString(), baseSkin.GetStyle("floatField"));
                     //GUILayout.FlexibleSpace();
                 }
+
                 if (!sliderOnRight)
                     GUILayout.FlexibleSpace();
+                else GUILayout.Space(10);
             }
             return _fieldValue;
         }
