@@ -18,20 +18,20 @@ namespace Shizen
 
             //_sizeX = _terrain.terrainData.heightmapWidth;
             //_sizeY = _terrain.terrainData.heightmapHeight;
-            _resolution = 256;
-            _working = new Texture2D(_resolution, _resolution, TextureFormat.RGBA32, true);
+            _resolution = terrain.terrainData.heightmapResolution;
+            _working = new Texture2D(_resolution, _resolution, TextureFormat.R16, true);
             _working.name = "Heightmap Noise Texture";
             _working.wrapMode = TextureWrapMode.Clamp;
-            FillTextureWithNoise(_working,properties);
+            FillTextureWithNoise(_resolution,_working,properties);
 
             return _working;
         }
 
-        private static void FillTextureWithNoise(Texture2D inputTexture,HeightLayerProps properties)
+        private static void FillTextureWithNoise(int resolution,Texture2D inputTexture,HeightLayerProps properties)
         {
-            int _resolution = inputTexture.width;
+            int _resolution = resolution;
             float _stepSize = 1f / _resolution;
-
+            Debug.Log("Resolution is " + _resolution);
             Vector3 point00 = new Vector3(-0.5f, -0.5f)+ properties.Offset.Vector3;
             Vector3 point10 = new Vector3(0.5f, -0.5f) + properties.Offset.Vector3;
             Vector3 point01 = new Vector3(-0.5f, 0.5f) + properties.Offset.Vector3;
@@ -61,12 +61,12 @@ namespace Shizen
             inputTexture.Apply();
         }
 
-        public static Texture2D CombineHeightLayers(List<HeightLayer> heightLayers)
+        public static Texture2D CombineHeightLayers(Terrain terrain, List<HeightLayer> heightLayers)
         {
             Texture2D _result;
-            int _resolution =256;
+            int _resolution = terrain.terrainData.heightmapResolution;
 
-            _result = new Texture2D(_resolution, _resolution, TextureFormat.RGB24, true);
+            _result = new Texture2D(_resolution, _resolution, TextureFormat.R16, true);
             _result.name = "Heightmap Combination Texture";
             _result.wrapMode = TextureWrapMode.Clamp;
         

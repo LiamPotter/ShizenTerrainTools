@@ -31,6 +31,14 @@ namespace Shizen.Editors
                 if (shizenTerrainComponent.Open())
                     ShizenTerrainEditor.Initialize(shizenTerrainComponent.Terrain, shizenTerrainComponent.ShizenTerrain);
             }
+            if (GUILayout.Button("Reset Terrain"))
+            {
+                shizenTerrainComponent.ResetTerrainHeights();
+            }
+            if (GUILayout.Button("Apply Heights"))
+            {
+                shizenTerrainComponent.ApplyHeightsToTerrain();
+            }
         }
     }
 }

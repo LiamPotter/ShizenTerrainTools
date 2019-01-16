@@ -19,6 +19,8 @@ namespace Shizen.Editors
 
         public SerializedObject SerializedTerrain;
 
+        public static bool IsOpen;
+
         private static GUISkin baseSkin;
 
         private static GUISkin unityBaseSkin;
@@ -49,6 +51,8 @@ namespace Shizen.Editors
 
         public static void Initialize(Terrain _terrain, ShizenTerrain _shizenTerrain)
         {
+            if (ShizenTerrainEditor.IsOpen)
+                return;
             ShizenTerrainEditor _tempEditor;
             //_tempEditor = (ShizenTerrainEditor)GetWindow(typeof(ShizenTerrainEditor));
             _tempEditor = (ShizenTerrainEditor)ScriptableObject.CreateInstance("ShizenTerrainEditor");
@@ -61,6 +65,7 @@ namespace Shizen.Editors
             bgColor = new Color(0.9f, 0.9f, 0.9f);
             _tempEditor.Show();
             _tempEditor = null;
+            ShizenTerrainEditor.IsOpen = true;
         }
         void OnEnable()
         {
@@ -72,6 +77,7 @@ namespace Shizen.Editors
         {
             EditorPrefs.SetBool("ShizenHeightLayersOpen", heightLayersOpen);
             EditorPrefs.SetBool("ShizenFinalHeightOpen", finalHeightLayerOpen);
+            ShizenTerrainEditor.IsOpen = false;
         }
 
         private void OnDestroy()
@@ -329,7 +335,7 @@ namespace Shizen.Editors
                 {
                     if (GUILayout.Button("Combine Height Layers", baseSkin.FindStyle("CenteredButton")))
                     {
-                        ShizenTerrain.FinalHeightmap = MainAlgorithms.CombineHeightLayers(ShizenTerrain.Heights);
+                        ShizenTerrain.FinalHeightmap = MainAlgorithms.CombineHeightLayers(Terrain,ShizenTerrain.Heights);
                     }
                     if (ShizenTerrain.Heights != null)
                     {

@@ -18,57 +18,17 @@ MonoBehaviour:
     Position: 0
     SavedMap: {fileID: 0}
     LayerProperties:
-      Frequency: 2
-      Amplitude: 1.44
-      Octaves: 4
-      Lacunarity: 2.92
-      Persistance: 0.2
-      Offset: {x: 0.58, y: 0, z: 0}
       Opacity: 1
     Randomized: 0
-    ExpandedInEditor: 0
+    ExpandedInEditor: 1
     PlaceholderPreset: 2
-  - Name: High Noise
+  - Name: high freq
     Position: 1
     SavedMap: {fileID: 0}
     LayerProperties:
-      Frequency: 23.25
-      Amplitude: 2
-      Octaves: 8
-      Lacunarity: 2
-      Persistance: 0.5
-      Offset: {x: 0, y: 0, z: 0}
-      Opacity: 1
+      Opacity: 0.38043478
     Randomized: 0
-    ExpandedInEditor: 0
-    PlaceholderPreset: 3
-  - Name: Low Noise
-    Position: 2
-    SavedMap: {fileID: 0}
-    LayerProperties:
-      Frequency: 2.45
-      Amplitude: 0.1
-      Octaves: 8
-      Lacunarity: 1
-      Persistance: 1
-      Offset: {x: 0, y: 0, z: 0}
-      Opacity: 1
-    Randomized: 0
-    ExpandedInEditor: 0
-    PlaceholderPreset: 0
-  - Name: Height Layer 3
-    Position: 3
-    SavedMap: {fileID: 0}
-    LayerProperties:
-      Frequency: 14.53
-      Amplitude: 1
-      Octaves: 2
-      Lacunarity: 2
-      Persistance: 1
-      Offset: {x: 0.26, y: 0, z: 0}
-      Opacity: 1
-    Randomized: 0
-    ExpandedInEditor: 0
+    ExpandedInEditor: 1
     PlaceholderPreset: 0
   Textures: []
   Details: []
