@@ -14,22 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Test
   Heights:
-  - Name: Slopes
+  - Name: Height Layer 0
     Position: 0
     SavedMap: {fileID: 0}
     LayerProperties:
       Opacity: 1
     Randomized: 0
     ExpandedInEditor: 1
-    PlaceholderPreset: 2
-  - Name: high freq
+    PlaceholderPreset: 0
+  - Name: Height Layer 1
     Position: 1
     SavedMap: {fileID: 0}
     LayerProperties:
-      Opacity: 0.38043478
+      Opacity: 1
     Randomized: 0
-    ExpandedInEditor: 1
+    ExpandedInEditor: 0
     PlaceholderPreset: 0
-  Textures: []
-  Details: []
   FinalHeightmap: {fileID: 0}
